@@ -4,11 +4,14 @@ from table import QLearner
 from deep import DQNLearner
 import matplotlib.pyplot as plt
 
+DEBUG = False
 RENDER = False
-EPISODES = 1000
-MAXSTEPS = 100
-LEARNER = 'table' # or 'deep'
-ENV = 'FrozenLake-v0' # 'CartPole-v0'
+EPISODES = 100
+MAXSTEPS = 200
+# LEARNER = 'table'
+LEARNER = 'deep'
+# ENV = 'FrozenLake-v0'
+ENV = 'CartPole-v0'
 
 # show available environments
 # also see: <https://gym.openai.com/envs>
@@ -30,7 +33,9 @@ if __name__ == '__main__':
                 env.render()
             action = agent.decide(obs, i, EPISODES)
             new_obs, reward, done, info = env.step(action)
-            agent.learn(obs, new_obs, action, reward)
+            loss = agent.learn(obs, new_obs, action, reward)
+            if DEBUG and loss:
+                print(loss)
             obs = new_obs
             acc_reward += reward
             if done:

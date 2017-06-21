@@ -7,7 +7,7 @@ from keras.layers.core import Dense
 
 
 class DQNLearner():
-    def __init__(self, env, discount=0.9, explore=0.5, hidden_size=100, memory_limit=5000, batch_size=256):
+    def __init__(self, env, discount=1., explore=1., hidden_size=100, memory_limit=5000, batch_size=256):
         # TODO this requirement is less important with DQNs
         if not isinstance(env.action_space, Discrete):
             raise Exception('Action space must be Discrete')
