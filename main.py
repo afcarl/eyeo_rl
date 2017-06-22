@@ -1,3 +1,5 @@
+import sys
+import pygame
 import argparse
 from game import Game
 from tqdm import tqdm
@@ -65,6 +67,10 @@ if __name__ == '__main__':
         acc_loss = 0
         ep_reward = 0
         for t in range(args.max_steps):
+            for event in pygame.event.get():
+                if event.type == pygame.KEYUP and event.key == 113:
+                    pygame.quit()
+                    sys.exit()
             if args.render and i % 100 == 0:
                 policy = agent.Q if args.learner == 'table' else None
                 game.render({

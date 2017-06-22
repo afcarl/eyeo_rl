@@ -101,7 +101,7 @@ class Game():
                 else:
                     self._render_text(arr, (x, y))
 
-        pygame.display.flip()
+        pygame.display.update()
 
     def _render_map(self):
         for idx, val in np.ndenumerate(self.map):
