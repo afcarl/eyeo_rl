@@ -1,11 +1,11 @@
-import sys
+# -*- coding: utf-8 -*-
+
 import pygame
 import numpy as np
-from time import sleep
 from itertools import product
 
 pygame.init()
-font = pygame.font.SysFont('arial', 20)
+font = pygame.font.Font('arial.ttf', 20)
 
 
 class Game():
@@ -14,7 +14,7 @@ class Game():
         self.width, self.height = size
         self.size = self.width * self.cell_size, self.height * self.cell_size
         self.map = np.zeros((self.width, self.height), dtype=int)
-        self.action_space = [(-1, 0), (1, 0), (0, -1), (1, 0)]
+        self.action_space = [(-1, 0), (1, 0), (0, -1), (1, 0)] # L/R/U/D
 
         self.objects = [{
             'name': 'empty',
@@ -80,11 +80,27 @@ class Game():
         self.map[x, y] = 0 # set to empty
         return idx
 
-    def render(self):
+    def render(self, info, policy=None):
         if not hasattr(self, 'screen'):
             self.screen = pygame.display.set_mode(self.size)
         self._render_map()
         self._render_agent(*self.agent_pos)
+
+        text = ', '.join(['{}: {}'.format(k, v) for k, v in info.items()])
+        label = font.render(text, True, (66, 134, 244))
+        self.screen.blit(label, (0, 0))
+
+        if policy is not None:
+            arrows = ['←', '→', '↑', '↓']
+            for idx, val in np.ndenumerate(self.map):
+                x, y = idx
+                idx = y * self.width + x
+                arr = arrows[np.argmax(policy[idx])]
+                if np.max(policy[idx]) == 0:
+                    self._render_text(arr, (x, y), color=(200,200,200))
+                else:
+                    self._render_text(arr, (x, y))
+
         pygame.display.flip()
 
     def _render_map(self):
@@ -94,11 +110,10 @@ class Game():
             pygame.draw.rect(
                 self.screen, obj['color'],
                 (x*self.cell_size, y*self.cell_size, self.cell_size, self.cell_size))
-            #draw_text(np.random.choice(['←', '↑', '→', '↓']), (x, y))
 
-    def _render_text(self, txt, pos):
+    def _render_text(self, txt, pos, color=(66, 134, 244)):
         x, y = pos
-        label = font.render(txt, True, (66, 134, 244))
+        label = font.render(txt, True, color)
         rect = label.get_rect(center=(
             x*self.cell_size+self.cell_size/2,
             y*self.cell_size+self.cell_size/2))
@@ -122,31 +137,3 @@ class Game():
     #     if y < self.height - 1:
     #         ys.append(y+1)
     #     return [self.map[x, y] for x, y in product(xs, ys)]
-
-
-if __name__ == '__main__':
-    objects = [{
-        'name': 'fruit',
-        'color': (255, 0, 0),
-        'reward': 1
-    }, {
-        'name': 'pit',
-        'color': (0, 0, 0),
-        'reward': -100,
-        'terminal': True
-    }, {
-        'name': 'treasure',
-        'color': (238, 244, 66),
-        'reward': 10,
-        'terminal': True
-    }]
-    probs = [0.02, 0.02, 0.01]
-    game = Game(objects, probs, state_type='world')
-    print(game.n_states)
-
-    # while True:
-    #     for event in pygame.event.get():
-    #         if event.type == pygame.KEYUP and event.key == 113: sys.exit()
-    #     game.reset()
-    #     game.render()
-    #     sleep(0.5)
