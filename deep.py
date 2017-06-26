@@ -1,26 +1,26 @@
 import random
 import numpy as np
 from collections import deque
-from gym.spaces import Discrete
+from keras.layers import Conv2D
 from keras.models import Sequential
-from keras.layers.core import Dense
+from keras.layers.core import Dense, Flatten
 
 
 class DQNLearner():
-    def __init__(self, env, discount=1., explore=1., hidden_size=100, memory_limit=5000, batch_size=256):
-        if not isinstance(env.action_space, Discrete):
-            raise Exception('Action space must be Discrete')
-
-        if isinstance(env.observation_space, Discrete):
-            obs_dim = 1
-        else:
-            obs_dim = env.observation_space.shape[0]
-
+    def __init__(self, env, discount=1., explore=1., hidden_size=100, memory_limit=2500, batch_size=256):
         model = Sequential()
-        model.add(Dense(hidden_size, input_shape=(obs_dim,), activation='relu'))
-        model.add(Dense(hidden_size, activation='relu'))
-        model.add(Dense(env.action_space.n))
-        model.compile(loss='mse', optimizer='sgd')
+        input_shape = (env.observation_space[0], env.observation_space[1], 1)
+        model.add(Conv2D(32, 8, 8,
+                         subsample=(4,4),
+                         activation='relu',
+                         border_mode='same',
+                         input_shape=input_shape))
+        model.add(Conv2D(64, 4, 4, subsample=(2,2), activation='relu', border_mode='same'))
+        model.add(Conv2D(64, 3, 3, subsample=(1,1), activation='relu', border_mode='same'))
+        model.add(Flatten())
+        model.add(Dense(256, activation='relu'))
+        model.add(Dense(len(env.action_space)))
+        model.compile(loss='mse', optimizer='adadelta')
         self.Q = model
 
         # experience replay:
@@ -32,22 +32,16 @@ class DQNLearner():
         self.discount = discount
         self.batch_size = batch_size
 
-    def _encode_observation(self, obs):
-        if not isinstance(obs, np.ndarray):
-            obs = np.array([obs])
-        return obs.reshape((1, -1))
-
     def decide(self, obs, episode, total_episodes):
-        obs = self._encode_observation(obs)
+        obs = np.array([obs])
         decay = min(episode/(total_episodes/2), 1) # tweak
-        if np.random.rand() <= (self.explore * (1 - decay)):
-            return self.env.action_space.sample()
-        q = self.Q.predict(obs)
-        return np.argmax(q[0])
+        pred = self.Q.predict(obs)
+        rand = np.random.randn(1, len(self.env.action_space))
+        return np.argmax(pred[0] + (rand * (1 - decay)))
 
     def learn(self, prev_obs, next_obs, action, reward):
-        prev_obs = self._encode_observation(prev_obs)
-        next_obs = self._encode_observation(next_obs)
+        prev_obs = np.array([prev_obs])
+        next_obs = np.array([next_obs])
         self.remember(prev_obs, next_obs, action, reward)
         loss = self.replay(self.batch_size)
         return loss

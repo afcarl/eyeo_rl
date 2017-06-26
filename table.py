@@ -20,3 +20,9 @@ class QLearner():
 
     def learn(self, prev_obs, next_obs, action, reward):
         self.Q[prev_obs, action] += self.learning_rate * ((reward + self.discount * self.Q[next_obs].max()) - self.Q[prev_obs, action])
+
+    def save(self, fname):
+        np.save(fname, self.Q)
+
+    def load(self, fname):
+        self.Q = np.load(fname)

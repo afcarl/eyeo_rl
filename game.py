@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
 import pygame
 import numpy as np
@@ -29,21 +30,25 @@ class Game():
         self.rewards = [o['reward'] for o in self.objects]
 
         # initialize map
-        for x, y in product(range(self.width), range(self.height)):
-            obj = np.random.choice(self.objects, p=self.probs)
-            idx = self.objects.index(obj)
-            self.map[x, y] = idx
-        self._map = np.copy(self.map)
+        self.generate_map()
 
         self.state_type = state_type
         if self.state_type == 'position':
             self.n_states = self.width * self.height
         elif self.state_type == 'world':
-            self.n_states = len(list(product(range(len(self.objects)), repeat=(self.width * self.height))))
+            self.n_states = len(self.objects)**(self.width * self.height)
         else:
             raise Exception('Unrecognized state type')
 
         self.reset()
+        self.observation_space = np.shape(self.observe())
+
+    def generate_map(self):
+        for x, y in product(range(self.width), range(self.height)):
+            obj = np.random.choice(self.objects, p=self.probs)
+            idx = self.objects.index(obj)
+            self.map[x, y] = idx
+        self._map = np.copy(self.map)
 
     def reset(self):
         self.map = np.copy(self._map)
@@ -57,9 +62,9 @@ class Game():
             x, y = self.agent_pos
             return y * self.width + x
         elif self.state_type == 'world':
-            state = self.map
+            state = np.copy(self.map)
             state[self.agent_pos] = -1
-            return state.flatten()
+            return state.reshape(20, 20, 1)
 
     def step(self, action):
         action = self.action_space[action]
@@ -91,15 +96,7 @@ class Game():
         self.screen.blit(label, (0, 0))
 
         if policy is not None:
-            arrows = ['←', '→', '↑', '↓']
-            for idx, val in np.ndenumerate(self.map):
-                x, y = idx
-                idx = y * self.width + x
-                arr = arrows[np.argmax(policy[idx])]
-                if np.max(policy[idx]) == 0:
-                    self._render_text(arr, (x, y), color=(200,200,200))
-                else:
-                    self._render_text(arr, (x, y))
+            self._render_policy(policy)
 
         pygame.display.update()
 
@@ -125,15 +122,13 @@ class Game():
             self.screen, (0,0,255),
             (x*self.cell_size+w/2, y*self.cell_size+h/2, w, h))
 
-    # def neighbors(self, x, y):
-    #     """moore neighborhood values for coordinate"""
-    #     xs, ys = [x], [y]
-    #     if x > 0:
-    #         xs.append(x-1)
-    #     if x < self.width - 1:
-    #         xs.append(x+1)
-    #     if y > 0:
-    #         ys.append(y-1)
-    #     if y < self.height - 1:
-    #         ys.append(y+1)
-    #     return [self.map[x, y] for x, y in product(xs, ys)]
+    def _render_policy(self, policy):
+        arrows = ['←', '→', '↑', '↓']
+        for idx, val in np.ndenumerate(self.map):
+            x, y = idx
+            idx = y * self.width + x
+            arr = arrows[np.argmax(policy[idx])]
+            if np.max(policy[idx]) == 0:
+                self._render_text(arr, (x, y), color=(200,200,200))
+            else:
+                self._render_text(arr, (x, y))
