@@ -102,10 +102,15 @@ class TreasureGame(BaseGame):
             self._render_policy(policy)
 
         if done == 'W':
-            label = self.bigfont.render('WIN', True, (66, 134, 244))
+            label = self.bigfont.render('WIN', True, (255,255,255))
+            rect = label.get_rect()
+            rect[1] = self.height * self.cell_size/2
+            pygame.draw.rect(self.screen, (255,0,0), rect)
             self.screen.blit(label, (0, self.height * self.cell_size/2))
         elif done == 'L':
-            label = self.bigfont.render('LOSE', True, (66, 134, 244))
+            label = self.bigfont.render('LOSE', True, (255,255,255))
+            rect[1] = self.height * self.cell_size/2
+            pygame.draw.rect(self.screen, (255,0,0), rect)
             self.screen.blit(label, (0, self.height * self.cell_size/2))
 
         pygame.display.update()
