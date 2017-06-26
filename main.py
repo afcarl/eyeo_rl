@@ -12,7 +12,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('learner', choices=['deep', 'table'])
     parser.add_argument('-e', '--episodes', type=int, default=5000)
-    parser.add_argument('-g', '--game', choices=['treasure', 'catcher'])
+    parser.add_argument('-g', '--game', choices=['treasure', 'catcher'], default='treasure')
     parser.add_argument('-s', '--max-steps', type=int, default=50)
     parser.add_argument('-d', '--discount', type=float, default=1.)
     parser.add_argument('-x', '--explore', type=float, default=1.)
@@ -46,11 +46,14 @@ if __name__ == '__main__':
             'terminal': True
         }], probs=[0.05, 0.1, 0.05], size=(20, 20),
             state_type=state_type)
+        game.load()
     elif args.game == 'catcher':
         game = games.CatcherGame()
 
     if args.learner == 'deep':
+        type = 'simple' if args.game == 'catcher' else 'conv'
         agent = DQNLearner(game,
+                           type=type,
                            discount=args.discount,
                            explore=args.explore,
                            hidden_size=args.hidden_size,
@@ -66,7 +69,6 @@ if __name__ == '__main__':
     acc_reward = 0
     avg_reward = 0
     bar = tqdm(range(args.episodes))
-    wins = 0
     for i in bar:
         acc_loss = 0
         ep_reward = 0
@@ -98,8 +100,6 @@ if __name__ == '__main__':
                 acc_loss += loss
             if done:
                 ep_reward += reward
-                if reward == 1:
-                    wins += 1
                 break
 
         # metrics
@@ -107,7 +107,7 @@ if __name__ == '__main__':
         avg_reward = acc_reward/(i+1)
         rewards.append(avg_reward)
         if acc_loss != 0:
-            bar.set_postfix(loss=acc_loss, reward=avg_reward, wins=wins/(i+1))
+            bar.set_postfix(loss=acc_loss, reward=avg_reward)
         else:
             bar.set_postfix(reward=avg_reward)
 

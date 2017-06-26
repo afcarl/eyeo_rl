@@ -3,12 +3,10 @@ from __future__ import unicode_literals
 
 import pygame
 import numpy as np
-
-pygame.init()
-font = pygame.font.Font('arial.ttf', 20)
+from .base import BaseGame
 
 
-class CatcherGame():
+class CatcherGame(BaseGame):
     def __init__(self, cell_size=40, size=(10, 10)):
         self.cell_size = cell_size
         self.width, self.height = size

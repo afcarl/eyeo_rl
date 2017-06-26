@@ -4,13 +4,11 @@ from __future__ import unicode_literals
 import json
 import pygame
 import numpy as np
+from .base import BaseGame
 from itertools import product
 
-pygame.init()
-font = pygame.font.Font('arial.ttf', 20)
 
-
-class TreasureGame():
+class TreasureGame(BaseGame):
     def __init__(self, objects, probs, cell_size=40, size=(20, 20), state_type='position'):
         self.cell_size = cell_size
         self.width, self.height = size
@@ -92,7 +90,7 @@ class TreasureGame():
         self._render_agent(*self.agent_pos)
 
         text = ', '.join(['{}: {}'.format(k, v) for k, v in info.items()])
-        label = font.render(text, True, (66, 134, 244))
+        label = self.font.render(text, True, (66, 134, 244))
         self.screen.blit(label, (0, 0))
 
         if policy is not None:
@@ -110,7 +108,7 @@ class TreasureGame():
 
     def _render_text(self, txt, pos, color=(66, 134, 244)):
         x, y = pos
-        label = font.render(txt, True, color)
+        label = self.font.render(txt, True, color)
         rect = label.get_rect(center=(
             x*self.cell_size+self.cell_size/2,
             y*self.cell_size+self.cell_size/2))
@@ -141,7 +139,7 @@ class TreasureGame():
             }, f)
         np.save('data/map.npy', self._map)
 
-    def load(self, fname):
+    def load(self):
         self._map = np.load('data/map.npy')
         data = json.load(open('data/game.json', 'r'))
         self.objects = data['objects']

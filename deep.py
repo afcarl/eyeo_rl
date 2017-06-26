@@ -28,8 +28,8 @@ class DQNLearner():
             model.add(Dense(hidden_size, activation='relu'))
             model.add(Dense(len(env.action_space)))
             model.compile(loss='mse', optimizer=sgd(lr=0.2))
-
         self.Q = model
+        self.type = type
 
         # experience replay:
         # remember states to "reflect" on later
@@ -50,7 +50,7 @@ class DQNLearner():
         obs = self._encode_observation(obs)
         decay = min(episode/(total_episodes/2), 1) # tweak
         pred = self.Q.predict(obs)
-        rand = np.random.randn(1, len(self.env.action_space))
+        rand = np.random.randn(1, len(self.env.action_space)) * self.explore
         return np.argmax(pred[0] + (rand * (1 - decay)))
 
     def learn(self, prev_obs, next_obs, action, reward):
