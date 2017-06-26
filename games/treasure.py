@@ -62,7 +62,7 @@ class TreasureGame(BaseGame):
         elif self.state_type == 'world':
             state = np.copy(self.map)
             state[self.agent_pos] = -1
-            return state.reshape(20, 20, 1)
+            return state.reshape(self.width, self.height, 1)
 
     def step(self, action):
         action = self.action_space[action]
