@@ -83,7 +83,7 @@ class TreasureGame(BaseGame):
         self.map[x, y] = 0 # set to empty
         return idx
 
-    def render(self, info, policy=None):
+    def render(self, done, reward, info, policy=None):
         if not hasattr(self, 'screen'):
             self.screen = pygame.display.set_mode(self.size)
         self._render_map()
@@ -95,6 +95,14 @@ class TreasureGame(BaseGame):
 
         if policy is not None:
             self._render_policy(policy)
+
+        if done:
+            if reward + 1 == 100:
+                label = self.bigfont.render('VICTORY', True, (66, 134, 244))
+                self.screen.blit(label, (0, self.height * self.cell_size/2))
+            else:
+                label = self.bigfont.render('FAILURE', True, (66, 134, 244))
+                self.screen.blit(label, (0, self.height * self.cell_size/2))
 
         pygame.display.update()
 

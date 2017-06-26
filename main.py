@@ -3,6 +3,7 @@ import games
 import pygame
 import argparse
 from tqdm import tqdm
+from time import sleep
 from table import QLearner
 from deep import DQNLearner
 import matplotlib.pyplot as plt
@@ -25,9 +26,9 @@ def parse_args():
     return parser.parse_args()
 
 
-def render(agent, args, i, ep_reward, avg_reward):
+def render(agent, args, i, ep_reward, avg_reward, reward, done):
     policy = agent.Q if args.learner == 'table' else None
-    game.render({
+    game.render(done, reward, {
         'Episode': i,
         'Reward': ep_reward,
         'Avg Reward': '{:.1f}'.format(avg_reward)
@@ -92,7 +93,8 @@ if __name__ == '__main__':
 
                 # render an episode
                 if i % args.render == 0:
-                    render(agent, args, i, ep_reward, avg_reward)
+                    render(agent, args, i, ep_reward, avg_reward, 0, False)
+
             # main training part
             action = agent.decide(obs, i, args.episodes)
             new_obs, reward, done = game.step(action)
@@ -105,7 +107,8 @@ if __name__ == '__main__':
             if done:
                 # render last frame
                 if i % args.render == 0:
-                    render(agent, args, i, ep_reward, avg_reward)
+                    render(agent, args, i, ep_reward, avg_reward, reward, True)
+                    sleep(2)
                 break
 
         # metrics

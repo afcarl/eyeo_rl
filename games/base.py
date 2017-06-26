@@ -5,6 +5,7 @@ pygame.init()
 
 class BaseGame():
     font = pygame.font.Font('data/arial.ttf', 20)
+    bigfont = pygame.font.Font('data/arial.ttf', 48)
 
     def reset(self):
         raise NotImplementedError

@@ -55,7 +55,7 @@ class CatcherGame(BaseGame):
         self.paddle = max(self.paddle_padding, self.paddle)
         self.paddle = min(self.width - 1 - self.paddle_padding, self.paddle)
 
-    def render(self, *args, **kwargs):
+    def render(self, done, reward, *args, **kwargs):
         if not hasattr(self, 'screen'):
             self.screen = pygame.display.set_mode(self.size)
 
@@ -69,5 +69,13 @@ class CatcherGame(BaseGame):
                 pygame.draw.rect(
                     self.screen, color,
                     (x*self.cell_size, y*self.cell_size, self.cell_size, self.cell_size))
+
+        if done:
+            if reward == 1:
+                label = self.bigfont.render('VICTORY', True, (66, 134, 244))
+                self.screen.blit(label, (0, self.height * self.cell_size/2))
+            else:
+                label = self.bigfont.render('FAILURE', True, (66, 134, 244))
+                self.screen.blit(label, (0, self.height * self.cell_size/2))
 
         pygame.display.update()
