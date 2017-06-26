@@ -38,14 +38,15 @@ class CatcherGame(BaseGame):
         tx, ty = self.target
         ty += 1
         if ty >= self.height - 1:
-            done = True
             if abs(tx -  self.paddle) <= self.paddle_padding:
+                done = 'W'
                 reward = 1
             else:
+                done = 'L'
                 reward = -1
         else:
-            reward = 0
             done = False
+            reward = 0
         self.target = tx, ty
         next_state = self.observe()
         return next_state, reward, done
@@ -55,7 +56,7 @@ class CatcherGame(BaseGame):
         self.paddle = max(self.paddle_padding, self.paddle)
         self.paddle = min(self.width - 1 - self.paddle_padding, self.paddle)
 
-    def render(self, done, reward, *args, **kwargs):
+    def render(self, done, info, *args, **kwargs):
         if not hasattr(self, 'screen'):
             self.screen = pygame.display.set_mode(self.size)
 
@@ -70,12 +71,15 @@ class CatcherGame(BaseGame):
                     self.screen, color,
                     (x*self.cell_size, y*self.cell_size, self.cell_size, self.cell_size))
 
-        if done:
-            if reward == 1:
-                label = self.bigfont.render('VICTORY', True, (66, 134, 244))
-                self.screen.blit(label, (0, self.height * self.cell_size/2))
-            else:
-                label = self.bigfont.render('FAILURE', True, (66, 134, 244))
-                self.screen.blit(label, (0, self.height * self.cell_size/2))
+        text = ', '.join(['{}: {}'.format(k, v) for k, v in info.items()])
+        label = self.font.render(text, True, (66, 134, 244))
+        self.screen.blit(label, (0, 0))
+
+        if done == 'W':
+            label = self.bigfont.render('WIN', True, (66, 134, 244))
+            self.screen.blit(label, (0, self.height * self.cell_size/2))
+        elif done == 'L':
+            label = self.bigfont.render('LOSE', True, (66, 134, 244))
+            self.screen.blit(label, (0, self.height * self.cell_size/2))
 
         pygame.display.update()
