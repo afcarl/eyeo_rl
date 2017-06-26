@@ -64,11 +64,11 @@ if __name__ == '__main__':
             'terminal': True
         }, {
             'name': 'fruit',
-            'color': (255, 0, 0),
+            'color': (0, 255, 0),
             'reward': 3
         }, {
             'name': 'pit',
-            'color': (0, 0, 0),
+            'color': (255, 0, 0),
             'reward': -100,
             'terminal': True
         }], probs=[0.05, 0.1, 0.05], size=(20, 20),
