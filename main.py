@@ -26,13 +26,30 @@ def parse_args():
     return parser.parse_args()
 
 
-def render(agent, args, i, ep_reward, avg_reward, reward, done):
+def render(agent, args, i, ep_reward, avg_reward, wins, done):
     policy = agent.Q if args.learner == 'table' else None
-    game.render(done, reward, {
-        'Episode': i,
+    game.render(done, {
+        'Ep': i,
         'Reward': ep_reward,
-        'Avg Reward': '{:.1f}'.format(avg_reward)
+        'AvgR': '{:.1f}'.format(avg_reward),
+        'WinRate': '{:.1f}'.format(wins/i) if i > 0 else 0
     }, policy=policy)
+
+
+def handle_input():
+    # if rendering, handle key events
+    for event in pygame.event.get():
+        if event.type == pygame.KEYUP:
+            if event.key == 113:
+                pygame.quit()
+                sys.exit()
+            elif event.key == 32:
+                paused = True
+                while paused:
+                    for event in pygame.event.get():
+                        if event.type == pygame.KEYUP and event.key == 32:
+                            paused = False
+
 
 
 if __name__ == '__main__':
@@ -77,6 +94,7 @@ if __name__ == '__main__':
                          discount=args.discount,
                          learning_rate=args.learning_rate)
 
+    wins = 0
     rewards = []
     acc_reward = 0
     avg_reward = 0
@@ -88,14 +106,11 @@ if __name__ == '__main__':
         for t in range(args.max_steps):
             if args.render:
                 # if rendering, handle key events
-                for event in pygame.event.get():
-                    if event.type == pygame.KEYUP and event.key == 113:
-                        pygame.quit()
-                        sys.exit()
+                handle_input()
 
                 # render an episode
                 if i % args.render == 0:
-                    render(agent, args, i, ep_reward, avg_reward, 0, False)
+                    render(agent, args, i, ep_reward, avg_reward, wins, False)
 
             # main training part
             action = agent.decide(obs, i, args.episodes)
@@ -109,8 +124,10 @@ if __name__ == '__main__':
             if done:
                 # render last frame
                 if args.render and i % args.render == 0:
-                    render(agent, args, i, ep_reward, avg_reward, reward, True)
+                    render(agent, args, i, ep_reward, avg_reward, wins, done)
                     sleep(2)
+                if done == 'W':
+                    wins += 1
                 break
 
         # metrics

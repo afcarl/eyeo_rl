@@ -70,6 +70,11 @@ class TreasureGame(BaseGame):
         reward = self.rewards[idx] - 1 # -1 per tick
         done = self.objects[idx].get('terminal', False)
         next_state = self.observe()
+        if done:
+            if reward == 99:
+                done = 'W'
+            else:
+                done = 'L'
         return next_state, reward, done
 
     def move(self, action):
@@ -83,7 +88,7 @@ class TreasureGame(BaseGame):
         self.map[x, y] = 0 # set to empty
         return idx
 
-    def render(self, done, reward, info, policy=None):
+    def render(self, done, info, policy=None):
         if not hasattr(self, 'screen'):
             self.screen = pygame.display.set_mode(self.size)
         self._render_map()
@@ -96,13 +101,12 @@ class TreasureGame(BaseGame):
         if policy is not None:
             self._render_policy(policy)
 
-        if done:
-            if reward + 1 == 100:
-                label = self.bigfont.render('VICTORY', True, (66, 134, 244))
-                self.screen.blit(label, (0, self.height * self.cell_size/2))
-            else:
-                label = self.bigfont.render('FAILURE', True, (66, 134, 244))
-                self.screen.blit(label, (0, self.height * self.cell_size/2))
+        if done == 'W':
+            label = self.bigfont.render('WIN', True, (66, 134, 244))
+            self.screen.blit(label, (0, self.height * self.cell_size/2))
+        elif done == 'L':
+            label = self.bigfont.render('LOSE', True, (66, 134, 244))
+            self.screen.blit(label, (0, self.height * self.cell_size/2))
 
         pygame.display.update()
 
