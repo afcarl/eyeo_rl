@@ -85,7 +85,8 @@ if __name__ == '__main__':
                            explore=args.explore,
                            hidden_size=args.hidden_size,
                            batch_size=args.batch_size,
-                           memory_limit=args.memory_limit)
+                           memory_limit=args.memory_limit,
+                           learning_rate=0.001) # 0.2 on gpu
         fname = 'data/{}.h5'.format(args.game)
         print('loading:', fname)
         agent.load(fname)
