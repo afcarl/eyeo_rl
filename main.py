@@ -1,8 +1,8 @@
 import sys
+import games
 import pygame
 import argparse
 from tqdm import tqdm
-from game import Game
 from table import QLearner
 from deep import DQNLearner
 import matplotlib.pyplot as plt
@@ -12,6 +12,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('learner', choices=['deep', 'table'])
     parser.add_argument('-e', '--episodes', type=int, default=5000)
+    parser.add_argument('-g', '--game', choices=['treasure', 'catcher'])
     parser.add_argument('-s', '--max-steps', type=int, default=50)
     parser.add_argument('-d', '--discount', type=float, default=1.)
     parser.add_argument('-x', '--explore', type=float, default=1.)
@@ -26,26 +27,27 @@ def parse_args():
 
 if __name__ == '__main__':
     args = parse_args()
-    state_type = 'position' if args.learner == 'table' else 'world'
 
-    game = Game([{
-        'name': 'treasure',
-        'color': (238, 244, 66),
-        'reward': 100,
-        'terminal': True
-    }, {
-        'name': 'fruit',
-        'color': (255, 0, 0),
-        'reward': 3
-    }, {
-        'name': 'pit',
-        'color': (0, 0, 0),
-        'reward': -100,
-        'terminal': True
-    }], probs=[0.05, 0.1, 0.05], size=(20, 20),
-        state_type=state_type)
-    # game.load()
-    game.save()
+    if args.game == 'treasure':
+        state_type = 'position' if args.learner == 'table' else 'world'
+        game = games.TreasureGame([{
+            'name': 'treasure',
+            'color': (238, 244, 66),
+            'reward': 100,
+            'terminal': True
+        }, {
+            'name': 'fruit',
+            'color': (255, 0, 0),
+            'reward': 3
+        }, {
+            'name': 'pit',
+            'color': (0, 0, 0),
+            'reward': -100,
+            'terminal': True
+        }], probs=[0.05, 0.1, 0.05], size=(20, 20),
+            state_type=state_type)
+    elif args.game == 'catcher':
+        game = games.CatcherGame()
 
     if args.learner == 'deep':
         agent = DQNLearner(game,
@@ -54,16 +56,17 @@ if __name__ == '__main__':
                            hidden_size=args.hidden_size,
                            batch_size=args.batch_size,
                            memory_limit=args.memory_limit)
+        agent.load('data/{}.h5'.format(args.game))
     else:
         agent = QLearner(game,
                          discount=args.discount,
                          learning_rate=args.learning_rate)
-        agent.load('model.h5')
 
     rewards = []
     acc_reward = 0
     avg_reward = 0
     bar = tqdm(range(args.episodes))
+    wins = 0
     for i in bar:
         acc_loss = 0
         ep_reward = 0
@@ -91,10 +94,12 @@ if __name__ == '__main__':
             loss = agent.learn(obs, new_obs, action, reward)
             obs = new_obs
 
-            ep_reward += reward
             if loss:
                 acc_loss += loss
             if done:
+                ep_reward += reward
+                if reward == 1:
+                    wins += 1
                 break
 
         # metrics
@@ -102,12 +107,12 @@ if __name__ == '__main__':
         avg_reward = acc_reward/(i+1)
         rewards.append(avg_reward)
         if acc_loss != 0:
-            bar.set_postfix(loss=acc_loss, reward=avg_reward)
+            bar.set_postfix(loss=acc_loss, reward=avg_reward, wins=wins/(i+1))
         else:
             bar.set_postfix(reward=avg_reward)
 
     if args.learner == 'deep':
-        agent.save('model.h5')
+        agent.save('data/{}.h5'.format(args.game))
 
     plt.plot(rewards)
     plt.xlabel('episodes')

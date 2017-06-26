@@ -10,7 +10,7 @@ pygame.init()
 font = pygame.font.Font('arial.ttf', 20)
 
 
-class Game():
+class TreasureGame():
     def __init__(self, objects, probs, cell_size=40, size=(20, 20), state_type='position'):
         self.cell_size = cell_size
         self.width, self.height = size
@@ -134,15 +134,16 @@ class Game():
                 self._render_text(arr, (x, y))
 
     def save(self):
-        with open('game.json', 'w') as f:
+        with open('data/game.json', 'w') as f:
             json.dump({
                 'objects': self.objects,
                 'rewards': self.rewards
             }, f)
-        np.save('map.npy', self._map)
+        np.save('data/map.npy', self._map)
 
     def load(self, fname):
-        self._map = np.load('map.npy')
-        data = json.load(open('game.json', 'r'))
+        self._map = np.load('data/map.npy')
+        data = json.load(open('data/game.json', 'r'))
         self.objects = data['objects']
         self.rewards = data['rewards']
+
