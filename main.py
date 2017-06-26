@@ -69,7 +69,9 @@ if __name__ == '__main__':
                            hidden_size=args.hidden_size,
                            batch_size=args.batch_size,
                            memory_limit=args.memory_limit)
-        agent.load('data/{}.h5'.format(args.game))
+        fname = 'data/{}.h5'.format(args.game)
+        print('loading:', fname)
+        agent.load(fname)
     else:
         agent = QLearner(game,
                          discount=args.discount,
@@ -106,7 +108,7 @@ if __name__ == '__main__':
                 acc_loss += loss
             if done:
                 # render last frame
-                if i % args.render == 0:
+                if args.render and i % args.render == 0:
                     render(agent, args, i, ep_reward, avg_reward, reward, True)
                     sleep(2)
                 break
