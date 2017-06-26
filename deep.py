@@ -12,13 +12,13 @@ class DQNLearner():
         model = Sequential()
         if type == 'conv':
             input_shape = (env.observation_space[0], env.observation_space[1], 1)
-            model.add(Conv2D(32, 8, 8,
+            model.add(Conv2D(32, (8, 8),
                             subsample=(4,4),
                             activation='relu',
                             border_mode='same',
                             input_shape=input_shape))
-            model.add(Conv2D(64, 4, 4, subsample=(2,2), activation='relu', border_mode='same'))
-            model.add(Conv2D(64, 3, 3, subsample=(1,1), activation='relu', border_mode='same'))
+            model.add(Conv2D(64, (4, 4), subsample=(2,2), activation='relu', border_mode='same'))
+            model.add(Conv2D(64, (3, 3), subsample=(1,1), activation='relu', border_mode='same'))
             model.add(Flatten())
             model.add(Dense(256, activation='relu'))
             model.add(Dense(len(env.action_space)))
