@@ -8,7 +8,7 @@ from keras.layers.core import Dense, Flatten
 
 
 class DQNLearner():
-    def __init__(self, env, type='simple', discount=1., explore=1., hidden_size=100, memory_limit=2500, batch_size=256):
+    def __init__(self, env, type='simple', discount=1., explore=1., hidden_size=100, memory_limit=2500, batch_size=256, learning_rate=0.2):
         model = Sequential()
         if type == 'conv':
             input_shape = (env.observation_space[0], env.observation_space[1], 1)
@@ -27,7 +27,7 @@ class DQNLearner():
             model.add(Dense(hidden_size, input_shape=(env.height * env.width,), activation='relu'))
             model.add(Dense(hidden_size, activation='relu'))
             model.add(Dense(len(env.action_space)))
-            model.compile(loss='mse', optimizer=sgd(lr=0.2))
+            model.compile(loss='mse', optimizer=sgd(lr=learning_rate))
         self.Q = model
         self.type = type
 
