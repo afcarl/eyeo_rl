@@ -64,7 +64,7 @@ if __name__ == '__main__':
             'terminal': True
         }, {
             'name': 'fruit',
-            'color': (0, 255, 0),
+            'color': (0, 0, 255),
             'reward': 3
         }, {
             'name': 'pit',
