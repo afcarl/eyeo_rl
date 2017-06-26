@@ -59,6 +59,13 @@ class CatcherGame(BaseGame):
         if not hasattr(self, 'screen'):
             self.screen = pygame.display.set_mode(self.size)
 
-        # TODO
+        self.cell_size = 20
+        for x, y in zip(range(self.width), range(self.height)):
+            color = (0,0,0)
+            if self.target == (x, y):
+                color = (255, 0, 0)
+            pygame.draw.rect(
+                self.screen, color,
+                (x*self.cell_size, y*self.cell_size, self.cell_size, self.cell_size))
 
         pygame.display.update()

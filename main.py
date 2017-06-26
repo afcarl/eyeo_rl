@@ -95,11 +95,11 @@ if __name__ == '__main__':
             new_obs, reward, done = game.step(action)
             loss = agent.learn(obs, new_obs, action, reward)
             obs = new_obs
+            ep_reward += reward
 
             if loss:
                 acc_loss += loss
             if done:
-                ep_reward += reward
                 break
 
         # metrics
