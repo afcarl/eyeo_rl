@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import json
 import pygame
 import numpy as np
 from itertools import product
@@ -10,7 +11,7 @@ font = pygame.font.Font('arial.ttf', 20)
 
 
 class Game():
-    def __init__(self, objects, probs, cell_size=40, size=(2, 2), state_type='position'):
+    def __init__(self, objects, probs, cell_size=40, size=(20, 20), state_type='position'):
         self.cell_size = cell_size
         self.width, self.height = size
         self.size = self.width * self.cell_size, self.height * self.cell_size
@@ -25,12 +26,11 @@ class Game():
         self.objects.extend(objects)
         probs.insert(0, 1.0 - sum(probs))
         assert sum(probs) == 1.0
-        self.probs = probs
 
         self.rewards = [o['reward'] for o in self.objects]
 
         # initialize map
-        self.generate_map()
+        self.generate_map(probs)
 
         self.state_type = state_type
         if self.state_type == 'position':
@@ -43,9 +43,9 @@ class Game():
         self.reset()
         self.observation_space = np.shape(self.observe())
 
-    def generate_map(self):
+    def generate_map(self, probs):
         for x, y in product(range(self.width), range(self.height)):
-            obj = np.random.choice(self.objects, p=self.probs)
+            obj = np.random.choice(self.objects, p=probs)
             idx = self.objects.index(obj)
             self.map[x, y] = idx
         self._map = np.copy(self.map)
@@ -132,3 +132,17 @@ class Game():
                 self._render_text(arr, (x, y), color=(200,200,200))
             else:
                 self._render_text(arr, (x, y))
+
+    def save(self):
+        with open('game.json', 'w') as f:
+            json.dump({
+                'objects': self.objects,
+                'rewards': self.rewards
+            }, f)
+        np.save('map.npy', self._map)
+
+    def load(self, fname):
+        self._map = np.load('map.npy')
+        data = json.load(open('game.json', 'r'))
+        self.objects = data['objects']
+        self.rewards = data['rewards']

@@ -44,6 +44,8 @@ if __name__ == '__main__':
         'terminal': True
     }], probs=[0.05, 0.1, 0.05], size=(20, 20),
         state_type=state_type)
+    # game.load()
+    game.save()
 
     if args.learner == 'deep':
         agent = DQNLearner(game,
