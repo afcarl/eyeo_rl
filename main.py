@@ -6,7 +6,7 @@ from tqdm import tqdm
 from time import sleep
 from table import QLearner
 from deep import DQNLearner
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 
 def parse_args():
@@ -142,7 +142,7 @@ if __name__ == '__main__':
     if args.learner == 'deep':
         agent.save('data/{}.h5'.format(args.game))
 
-    plt.plot(rewards)
-    plt.xlabel('episodes')
-    plt.ylabel('reward')
-    plt.show()
+    # plt.plot(rewards)
+    # plt.xlabel('episodes')
+    # plt.ylabel('reward')
+    # plt.show()
