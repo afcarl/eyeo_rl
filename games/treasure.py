@@ -109,6 +109,7 @@ class TreasureGame(BaseGame):
             self.screen.blit(label, (0, self.height * self.cell_size/2))
         elif done == 'L':
             label = self.bigfont.render('LOSE', True, (255,255,255))
+            rect = label.get_rect()
             rect[1] = self.height * self.cell_size/2
             pygame.draw.rect(self.screen, (255,0,0), rect)
             self.screen.blit(label, (0, self.height * self.cell_size/2))
@@ -134,7 +135,7 @@ class TreasureGame(BaseGame):
     def _render_agent(self, x, y):
         w = h = self.cell_size * 0.5
         pygame.draw.ellipse(
-            self.screen, (0,0,255),
+            self.screen, (0, 0, 0),
             (x*self.cell_size+w/2, y*self.cell_size+h/2, w, h))
 
     def _render_policy(self, policy):
