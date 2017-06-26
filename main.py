@@ -25,6 +25,15 @@ def parse_args():
     return parser.parse_args()
 
 
+def render(agent, args, i, ep_reward, avg_reward):
+    policy = agent.Q if args.learner == 'table' else None
+    game.render({
+        'Episode': i,
+        'Reward': ep_reward,
+        'Avg Reward': '{:.1f}'.format(avg_reward)
+    }, policy=policy)
+
+
 if __name__ == '__main__':
     args = parse_args()
 
@@ -83,13 +92,7 @@ if __name__ == '__main__':
 
                 # render an episode
                 if i % args.render == 0:
-                    policy = agent.Q if args.learner == 'table' else None
-                    game.render({
-                        'Episode': i,
-                        'Reward': ep_reward,
-                        'Avg Reward': '{:.1f}'.format(avg_reward)
-                    }, policy=policy)
-
+                    render(agent, args, i, ep_reward, avg_reward)
             # main training part
             action = agent.decide(obs, i, args.episodes)
             new_obs, reward, done = game.step(action)
@@ -100,6 +103,9 @@ if __name__ == '__main__':
             if loss:
                 acc_loss += loss
             if done:
+                # render last frame
+                if i % args.render == 0:
+                    render(agent, args, i, ep_reward, avg_reward)
                 break
 
         # metrics

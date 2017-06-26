@@ -55,17 +55,19 @@ class CatcherGame(BaseGame):
         self.paddle = max(self.paddle_padding, self.paddle)
         self.paddle = min(self.width - 1 - self.paddle_padding, self.paddle)
 
-    def render(self, info, policy=None):
+    def render(self, *args, **kwargs):
         if not hasattr(self, 'screen'):
             self.screen = pygame.display.set_mode(self.size)
 
-        self.cell_size = 20
-        for x, y in zip(range(self.width), range(self.height)):
-            color = (0,0,0)
-            if self.target == (x, y):
-                color = (255, 0, 0)
-            pygame.draw.rect(
-                self.screen, color,
-                (x*self.cell_size, y*self.cell_size, self.cell_size, self.cell_size))
+        for x in range(self.width):
+            for y in range(self.height):
+                color = (0,0,100)
+                if self.target == (x, y):
+                    color = (255, 0, 0)
+                elif y == self.height - 1 and x in [self.paddle - 1, self.paddle, self.paddle + 1]:
+                    color = (0, 0, 0)
+                pygame.draw.rect(
+                    self.screen, color,
+                    (x*self.cell_size, y*self.cell_size, self.cell_size, self.cell_size))
 
         pygame.display.update()
