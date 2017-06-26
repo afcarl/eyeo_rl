@@ -2,3 +2,4 @@ tensorflow==1.2.0
 h5py==2.7.0
 pygame==1.9.3
 tqdm==4.11.2
+Keras==2.0.5
